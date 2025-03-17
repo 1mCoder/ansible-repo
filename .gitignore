@@ -11,3 +11,9 @@ terraform/.terraform/
 
 # Ignore any other sensitive data
 *.private
+
+# Ignore Ansible inventory and variable files
+ansible/inventory.ini
+ansible/group_vars/
+ansible/group_vars/master.yml
+ansible/group_vars/slave.yml
