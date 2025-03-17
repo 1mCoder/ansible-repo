@@ -1,6 +1,7 @@
 # 🚀 Terraform Infrastructure Setup with aws-vault
 
-This repository contains Terraform configurations to deploy a simple infrastructure in AWS, including EC2 instances and security groups. It leverages **aws-vault** to securely manage AWS credentials and uses **Ansible** to configure the servers after deployment.
+This repository provides an automated infrastructure setup for AWS using **Terraform** and **Ansible**. It deploys EC2 instances with the necessary security groups and configures them for PostgreSQL 16 replication.
+Terraform provisions the servers, while **aws-vault** ensures secure AWS credential management. After deployment, Ansible automates the installation and configuration of PostgreSQL 16, setting up a primary-replica replication between two servers.
 
 ## 📋 Prerequisites
 
@@ -20,7 +21,7 @@ Follow these steps to deploy the infrastructure and configure your AWS resources
 Clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/your-username/terraform-repo.git
+git clone https://github.com/1mCoder/ansible-repo
 cd terraform-repo
 ```
 
@@ -107,13 +108,3 @@ This repository is organized into two main folders:
 
 - **`terraform/`**: Contains Terraform scripts that define the infrastructure (EC2 instances, security groups, etc.).
 - **`ansible/`**: Contains Ansible playbooks for configuring the servers after deployment (e.g., installing software, setting up configurations).
-
-## 🔐 Security Best Practices
-
-- **aws-vault** ensures that your AWS credentials are stored securely and are used only when needed.
-- Ensure your IAM user has minimal privileges required for provisioning resources.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
