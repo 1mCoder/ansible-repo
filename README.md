@@ -22,7 +22,7 @@ Clone this repository to your local machine:
 
 ```bash
 git clone https://github.com/1mCoder/ansible-repo
-cd terraform-repo
+cd ansible-repo
 ```
 
 ### 2. Configure AWS-vault
@@ -37,9 +37,10 @@ Make sure to replace `your-profile` with the actual profile name you want to use
 
 ### 3. Initialize Terraform
 
-Run the following command to initialize the Terraform working directory. This command will download the necessary provider plugins for AWS.
+Run the following command to initialize the Terraform working directory. This command will download the necessary provider plugins for AWS. Terraform commands must be executed from the `/terraform` directory
 
 ```bash
+cd terraform
 aws-vault exec your-profile -- terraform init
 ```
 
@@ -53,10 +54,11 @@ aws-vault exec your-profile -- terraform apply
 
 ### 5. Run Ansible Playbook
 
-After Terraform successfully applies the configuration, execute the Ansible playbook to configure the deployed EC2 instances.
+After Terraform successfully applies the configuration, execute the Ansible playbook to configure the deployed EC2 instances. Make sure to execute the command from the `/ansible` directory.
 
 ```bash
-ansible-playbook ansible/site.yml
+cd ../ansible
+ansible-playbook site.yml
 ```
 
 This playbook will handle the configuration of your EC2 instances after they are provisioned.
