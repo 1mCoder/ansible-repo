@@ -1,5 +1,5 @@
 ---
-- name: Install and Configure PostgreSQL
+- name: Install PostgreSQL
   hosts: master,slave
   become: yes
   tasks:
@@ -11,21 +11,3 @@
       apt:
         name: postgresql-16
         state: present
-
-    - name: Configure PostgreSQL to listen on specific addresses
-      lineinfile:
-        path: /etc/postgresql/16/main/postgresql.conf
-        regexp: '^listen_addresses'
-        line: "listen_addresses = '{{ item.address }}, 127.0.0.1'"
-        state: present
-      notify: Restart PostgreSQL
-      delegate_to: "{{ item.host }}"
-      with_items:
-        - { host: 'master', address: '{{ master_address }}' }
-        - { host: 'slave', address: '{{ slave_address }}' }
-
-  handlers:
-    - name: Restart PostgreSQL
-      service:
-        name: postgresql@16-main.service
-        state: restarted

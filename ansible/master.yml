@@ -7,12 +7,16 @@
     replication_password: "password12345"
   tasks:
 
-    - name: Show slave address on master
-      debug:
-        msg: "The slave address is {{ hostvars[item].slave_address }}"
-      with_items: "{{ groups['slave'] }}"
-      tags:
-        - test
+    - name: Configure PostgreSQL to listen on specific addresses
+      lineinfile:
+        path: /etc/postgresql/16/main/postgresql.conf
+        line: "listen_addresses = '{{ master_address }}, 127.0.0.1'"
+        state: present
+
+    - name: Restart PostgreSQL
+      service:
+        name: postgresql@16-main.service
+        state: restarted
 
     - name: Ensure python3-pip is installed (Debian-based)
       apt:
@@ -39,15 +43,22 @@
         encrypted: yes
         state: present
 
+    - name: Grant replication privileges to replication_user
+      become: yes
+      become_user: postgres
+      shell: psql -c "ALTER USER {{ replication_user }} WITH REPLICATION;"
+
     - name: Configure pg_hba.conf for replication user
       lineinfile:
         path: /etc/postgresql/16/main/pg_hba.conf
-        line: "host all {{ replication_user }} {{ hostvars[item].slave_address }}/32 md5"
+        line: "host {{ item.database }} {{ replication_user }} {{ hostvars[item.slave].slave_address }}/32 md5"
         state: present
-      with_items: "{{ groups['slave'] }}"
-      notify: Reload PostgreSQL
+      loop:
+        - { database: "all", slave: "{{ groups['slave'] | first }}" }
+        - { database: "replication", slave: "{{ groups['slave'] | first }}" }
+      loop_control:
+        loop_var: item
 
-  handlers:
     - name: Reload PostgreSQL
       service:
         name: postgresql@16-main.service

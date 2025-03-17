@@ -1,0 +1,37 @@
+---
+- name: PostgreSQL setup and restore from backup
+  hosts: slave
+  become: true
+  tasks:
+
+    - name: Install ACL
+      apt:
+        name: acl
+        state: present
+
+    - name: Remove old PostgreSQL data directory
+      become_user: postgres
+      ansible.builtin.file:
+        path: /var/lib/postgresql/16/main/
+        state: absent
+
+    - name: Set PGPASSWORD environment variable
+      become_user: postgres
+      ansible.builtin.shell:
+        cmd: export PGPASSWORD='password12345'
+      environment:
+        PGPASSWORD: 'password12345'
+
+    - name: Perform pg_basebackup from master
+      become_user: postgres
+      ansible.builtin.shell:
+        cmd: |
+          pg_basebackup --host={{ hostvars[item].master_address }} --port=5432 --username=replication_user --pgdata=/var/lib/postgresql/16/main/ --verbose --progress --write-recovery-conf
+      with_items: "{{ groups['master'] }}"
+      environment:
+        PGPASSWORD: 'password12345'
+
+    - name: Restart PostgreSQL service
+      ansible.builtin.systemd:
+        name: postgresql@16-main.service
+        state: restarted
