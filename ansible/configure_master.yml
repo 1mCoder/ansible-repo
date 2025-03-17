@@ -1,0 +1,54 @@
+---
+- name: Configure PostgreSQL Master for Replication
+  hosts: master
+  become: yes
+  vars:
+    replication_user: "replication_user"
+    replication_password: "password12345"
+  tasks:
+
+    - name: Show slave address on master
+      debug:
+        msg: "The slave address is {{ hostvars[item].slave_address }}"
+      with_items: "{{ groups['slave'] }}"
+      tags:
+        - test
+
+    - name: Ensure python3-pip is installed (Debian-based)
+      apt:
+        name: python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Install psycopg2 Python package for PostgreSQL (Debian-based)
+      apt: 
+        name: python3-psycopg2
+        state: present
+        update_cache: yes
+
+    - name: Ensure pipelining is enabled
+      ansible.builtin.set_fact:
+        ansible_pipelining: True
+
+    - name: Create replication user
+      become: true
+      become_user: postgres
+      community.postgresql.postgresql_user:
+        name: "{{ replication_user }}"
+        password: "{{ replication_password }}"
+        encrypted: yes
+        state: present
+
+    - name: Configure pg_hba.conf for replication user
+      lineinfile:
+        path: /etc/postgresql/16/main/pg_hba.conf
+        line: "host all {{ replication_user }} {{ hostvars[item].slave_address }}/32 md5"
+        state: present
+      with_items: "{{ groups['slave'] }}"
+      notify: Reload PostgreSQL
+
+  handlers:
+    - name: Reload PostgreSQL
+      service:
+        name: postgresql@16-main.service
+        state: reloaded

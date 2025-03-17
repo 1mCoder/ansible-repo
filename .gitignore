@@ -1,0 +1,13 @@
+# Ignore Terraform plan and state files
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Ignore .terraform directory
+terraform/.terraform/
+
+# Ignore SSH private key files
+*.pem
+
+# Ignore any other sensitive data
+*.private
