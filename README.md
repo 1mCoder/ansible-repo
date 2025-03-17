@@ -79,7 +79,7 @@ After the `terraform apply` command, Terraform will provide the necessary inform
 
 Example of a generated output:
 
-```json
+```hcl
 master = {
   "private_ip" = "172.31.31.189"
   "public_dns" = "ec2-13-61-152-234.eu-north-1.compute.amazonaws.com"
